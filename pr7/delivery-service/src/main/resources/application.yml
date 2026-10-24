@@ -1,0 +1,39 @@
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  application:
+    name: delivery-service
+  r2dbc:
+    url: ${DB_URL:r2dbc:postgresql://localhost:5437/pr7_reactive}
+    username: ${DB_USER:pr7_user}
+    password: ${DB_PASSWORD:pr7_password}
+    pool:
+      enabled: true
+      initial-size: 1
+      max-size: 8
+  sql:
+    init:
+      mode: always
+
+clients:
+  order-service:
+    base-url: ${ORDER_SERVICE_BASE_URL:http://localhost:8088}
+    timeout: 3s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+
+info:
+  app:
+    name: delivery-service
+    description: Реактивный CRUD и SSE для управления доставками

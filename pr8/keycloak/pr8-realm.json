@@ -1,0 +1,38 @@
+{
+  "realm": "pr8",
+  "enabled": true,
+  "displayName": "PR8 Microservices",
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": false,
+  "clients": [
+    {
+      "clientId": "pr8-client",
+      "name": "PR8 command line client",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "protocol": "openid-connect"
+    }
+  ],
+  "users": [
+    {
+      "username": "student",
+      "enabled": true,
+      "email": "student@pr8.local",
+      "emailVerified": true,
+      "firstName": "Demo",
+      "lastName": "Student",
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "student123",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}

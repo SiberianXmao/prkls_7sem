@@ -1,0 +1,13 @@
+http:
+  routers:
+    api-gateway:
+      entryPoints:
+        - web
+      rule: PathPrefix(`/`)
+      service: api-gateway
+
+  services:
+    api-gateway:
+      loadBalancer:
+        servers:
+          - url: http://api-gateway:8080

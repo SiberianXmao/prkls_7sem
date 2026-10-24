@@ -1,0 +1,16 @@
+[
+  {
+    "supplierId": 202,
+    "supplierName": "ТехноИмпорт",
+    "product": "Монитор 27 дюймов",
+    "price": 28990.00,
+    "quantity": 12
+  },
+  {
+    "supplierId": 202,
+    "supplierName": "ТехноИмпорт",
+    "product": "USB-C док-станция",
+    "price": 11990.00,
+    "quantity": 21
+  }
+]

@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pr2-postgres
+    environment:
+      POSTGRES_DB: suppliers
+      POSTGRES_USER: pr2
+      POSTGRES_PASSWORD: pr2
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pr2 -d suppliers"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+    volumes:
+      - pr2-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  pr2-postgres-data:

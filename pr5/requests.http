@@ -1,0 +1,29 @@
+### Создать заказ
+POST http://localhost:8080/api/orders
+Content-Type: application/json
+
+{
+  "customerName": "Иван Петров",
+  "deliveryAddress": "Москва, ул. Пушкина, д. 10",
+  "productName": "Ноутбук",
+  "quantity": 1,
+  "totalAmount": 89990.00
+}
+
+### Список заказов
+GET http://localhost:8080/api/orders
+
+### Создать доставку — замените orderId на ID созданного заказа
+POST http://localhost:8080/api/deliveries
+Content-Type: application/json
+
+{
+  "orderId": 1,
+  "courierName": "Алексей Смирнов"
+}
+
+### Список доставок
+GET http://localhost:8080/api/deliveries
+
+### Повторить запрос несколько раз: поле servedBy покажет балансировку
+GET http://localhost:8080/api/deliveries/instance

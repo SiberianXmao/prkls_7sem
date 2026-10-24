@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/pr1/pom.xml" />
+        <option value="$PROJECT_DIR$/pr2/pom.xml" />
+        <option value="$PROJECT_DIR$/pr3/pom.xml" />
+        <option value="$PROJECT_DIR$/pr4/pom.xml" />
+        <option value="$PROJECT_DIR$/pr5/delivery-service/pom.xml" />
+        <option value="$PROJECT_DIR$/pr5/order-service/pom.xml" />
+        <option value="$PROJECT_DIR$/pr5/pom.xml" />
+        <option value="$PROJECT_DIR$/pr7/delivery-service/pom.xml" />
+        <option value="$PROJECT_DIR$/pr7/order-service/pom.xml" />
+        <option value="$PROJECT_DIR$/pr7/pom.xml" />
+        <option value="$PROJECT_DIR$/pr8/supplier-service/pom.xml" />
+        <option value="$PROJECT_DIR$/pr8/order-service/pom.xml" />
+        <option value="$PROJECT_DIR$/pr8/discovery-server/pom.xml" />
+        <option value="$PROJECT_DIR$/pr8/delivery-service/pom.xml" />
+        <option value="$PROJECT_DIR$/pr8/config-server/pom.xml" />
+        <option value="$PROJECT_DIR$/pr8/api-gateway/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_24" project-jdk-name="openjdk-26" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>

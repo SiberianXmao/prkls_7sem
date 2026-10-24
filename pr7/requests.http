@@ -1,0 +1,71 @@
+@deliveryUrl = http://localhost:8087
+@orderUrl = http://localhost:8088
+@deliveryId = 1
+
+### Проверка Order Service
+GET {{orderUrl}}/api/orders/1
+Accept: application/json
+
+### Создание доставки: Delivery Service выполнит WebClient-вызов в Order Service
+POST {{deliveryUrl}}/api/deliveries
+Content-Type: application/json
+
+{
+  "orderId": 1,
+  "courier": "Иван Курьер"
+}
+
+### Получение всех доставок — Flux<DeliveryResponse>
+GET {{deliveryUrl}}/api/deliveries
+Accept: application/json
+
+### Фильтрация реактивного потока
+GET {{deliveryUrl}}/api/deliveries?status=DELIVERED&minPrice=2000
+Accept: application/json
+
+### Получение одной доставки — Mono<DeliveryResponse>
+GET {{deliveryUrl}}/api/deliveries/{{deliveryId}}
+Accept: application/json
+
+### SSE-поток состояния (лучше запускать через curl.exe -N)
+GET {{deliveryUrl}}/api/deliveries/{{deliveryId}}/stream
+Accept: text/event-stream
+
+### CREATED -> ACCEPTED
+PUT {{deliveryUrl}}/api/deliveries/{{deliveryId}}
+Content-Type: application/json
+
+{
+  "courier": "Иван Курьер",
+  "status": "ACCEPTED"
+}
+
+### ACCEPTED -> IN_TRANSIT
+PUT {{deliveryUrl}}/api/deliveries/{{deliveryId}}
+Content-Type: application/json
+
+{
+  "courier": "Иван Курьер",
+  "status": "IN_TRANSIT"
+}
+
+### IN_TRANSIT -> DELIVERED
+PUT {{deliveryUrl}}/api/deliveries/{{deliveryId}}
+Content-Type: application/json
+
+{
+  "courier": "Иван Курьер",
+  "status": "DELIVERED"
+}
+
+### Удаление
+DELETE {{deliveryUrl}}/api/deliveries/{{deliveryId}}
+
+### Ошибка: заказ отсутствует
+POST {{deliveryUrl}}/api/deliveries
+Content-Type: application/json
+
+{
+  "orderId": 999,
+  "courier": "Иван Курьер"
+}

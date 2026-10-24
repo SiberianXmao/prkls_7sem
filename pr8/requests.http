@@ -1,0 +1,50 @@
+@gateway = http://localhost:8090
+@keycloak = http://localhost:8092
+
+### OAuth2 token (copy access_token into the variable below)
+POST {{keycloak}}/realms/pr8/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&client_id=pr8-client&username=student&password=student123
+
+### Paste token
+@token = REPLACE_WITH_ACCESS_TOKEN
+
+### Products through Traefik and API Gateway
+GET {{gateway}}/api/products
+Authorization: Bearer {{token}}
+X-Request-ID: http-client-products
+
+### Create order
+POST {{gateway}}/api/orders
+Authorization: Bearer {{token}}
+X-Request-ID: http-client-order
+Content-Type: application/json
+
+{
+  "clientRequestId": "idea-demo-001",
+  "productId": 1,
+  "quantity": 2,
+  "customerName": "Anna Smirnova",
+  "deliveryAddress": "Moscow, Tverskaya street, 10"
+}
+
+### Orders
+GET {{gateway}}/api/orders
+Authorization: Bearer {{token}}
+
+### Deliveries created asynchronously
+GET {{gateway}}/api/deliveries
+Authorization: Bearer {{token}}
+
+### SSE timeline
+GET {{gateway}}/api/orders/1/events
+Authorization: Bearer {{token}}
+Accept: text/event-stream
+
+### Start delivery
+PUT {{gateway}}/api/deliveries/1/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"status":"IN_TRANSIT"}

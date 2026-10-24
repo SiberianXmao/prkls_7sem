@@ -1,0 +1,45 @@
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  application:
+    name: order-service
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5435/delivery_platform}
+    username: ${DB_USER:delivery_app}
+    password: ${DB_PASSWORD:delivery_secret}
+    hikari:
+      maximum-pool-size: 8
+      minimum-idle: 1
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: orders
+  flyway:
+    enabled: true
+    create-schemas: true
+    default-schema: orders
+    schemas: orders
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: order-service
+    description: Сервис управления заказами

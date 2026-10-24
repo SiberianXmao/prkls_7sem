@@ -1,0 +1,122 @@
+name: pr5-delivery-platform
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5435}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - backend
+
+  order-service:
+    build:
+      context: .
+      dockerfile: order-service/Dockerfile
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=pr5-edge"
+      - "traefik.http.routers.orders.rule=PathPrefix(`/api/orders`)"
+      - "traefik.http.routers.orders.entrypoints=web"
+      - "traefik.http.routers.orders.service=orders"
+      - "traefik.http.services.orders.loadbalancer.server.port=8080"
+      - "traefik.http.services.orders.loadbalancer.healthcheck.path=/actuator/health"
+      - "traefik.http.services.orders.loadbalancer.healthcheck.interval=5s"
+    restart: unless-stopped
+    networks:
+      - backend
+      - edge
+
+  delivery-service:
+    build:
+      context: .
+      dockerfile: delivery-service/Dockerfile
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      ORDER_SERVICE_BASE_URL: http://order-service:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
+    deploy:
+      replicas: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=pr5-edge"
+      - "traefik.http.routers.deliveries.rule=PathPrefix(`/api/deliveries`)"
+      - "traefik.http.routers.deliveries.entrypoints=web"
+      - "traefik.http.routers.deliveries.service=deliveries"
+      - "traefik.http.services.deliveries.loadbalancer.server.port=8080"
+      - "traefik.http.services.deliveries.loadbalancer.healthcheck.path=/actuator/health"
+      - "traefik.http.services.deliveries.loadbalancer.healthcheck.interval=5s"
+    restart: unless-stopped
+    networks:
+      - backend
+      - edge
+
+  traefik:
+    image: traefik:v3.7.15
+    command:
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=INFO"
+    ports:
+      - "${TRAEFIK_HTTP_PORT:-8080}:80"
+      - "${TRAEFIK_DASHBOARD_PORT:-8081}:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      order-service:
+        condition: service_healthy
+      delivery-service:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - edge
+
+volumes:
+  postgres_data:
+
+networks:
+  backend:
+    name: pr5-backend
+    internal: true
+  edge:
+    name: pr5-edge

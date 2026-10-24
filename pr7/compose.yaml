@@ -1,0 +1,78 @@
+name: pr7-reactive-delivery
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pr7_reactive}
+      POSTGRES_USER: ${POSTGRES_USER:-pr7_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pr7_password}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5437}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - backend
+
+  order-service:
+    build:
+      context: .
+      dockerfile: order-service/Dockerfile
+    environment:
+      DB_URL: r2dbc:postgresql://postgres:5432/${POSTGRES_DB:-pr7_reactive}
+      DB_USER: ${POSTGRES_USER:-pr7_user}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-pr7_password}
+    ports:
+      - "${ORDER_SERVICE_PORT:-8088}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - backend
+
+  delivery-service:
+    build:
+      context: .
+      dockerfile: delivery-service/Dockerfile
+    environment:
+      DB_URL: r2dbc:postgresql://postgres:5432/${POSTGRES_DB:-pr7_reactive}
+      DB_USER: ${POSTGRES_USER:-pr7_user}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-pr7_password}
+      ORDER_SERVICE_BASE_URL: http://order-service:8080
+    ports:
+      - "${DELIVERY_SERVICE_PORT:-8087}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - backend
+
+volumes:
+  postgres_data:
+
+networks:
+  backend:
+    name: pr7-backend

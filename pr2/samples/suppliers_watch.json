@@ -1,0 +1,9 @@
+[
+  {
+    "supplierId": 404,
+    "supplierName": "Новый поставщик",
+    "product": "Сетевой накопитель",
+    "price": 45900.00,
+    "quantity": 7
+  }
+]
